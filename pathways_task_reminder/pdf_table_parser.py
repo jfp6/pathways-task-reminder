@@ -1,5 +1,7 @@
 import pymupdf
+import numpy as np
 import pandas as pd
+from pathways_task_reminder import constants as const
 
 from pathways_task_reminder.utils.enumerable import compact, partition_while
 
@@ -8,7 +10,7 @@ from pathlib import Path
 
 
 class PDFTableParser:
-    SKIP_TABLES = ["This Week's Assignments"]
+    SKIP_TABLES = [const.THIS_WEEKS_ASSIGNMENTS]
     TERMINAL_HEADERS = ["Total", "Max"]
 
     def extract_tables(self, pdf_path: Path) -> dict[str, pd.DataFrame]:
@@ -41,6 +43,14 @@ class PDFTableParser:
         if skip_last_column:
             df.drop(df.columns[[-1]], axis=1, inplace=True)
 
+        # interpret all strings as integers after replacing non-breaking space
+        # with NaN
+        df.iloc[:, 1:] = (
+            df.iloc[:, 1:]
+            .replace("\xa0", np.nan)
+            .apply(pd.to_numeric, errors="coerce")
+            .astype("Int64")
+        )
         return (table_name, df)
 
     def _parse_header(self, lines):

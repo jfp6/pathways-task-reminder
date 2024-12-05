@@ -1,0 +1,438 @@
+import pytest
+import numpy as np
+import os
+from pathlib import Path
+import pandas as pd
+
+PATHWAYS_PDF_FILENAME = "test.pdf"
+
+
+def coerce_to_integers(df):
+    """
+    Coerces all numeric columns (except the first column) in the dataframe
+    to the Int64 data type, replacing None with <NA>.
+
+    Parameters:
+    df (pd.DataFrame): The input dataframe.
+
+    Returns:
+    pd.DataFrame: The modified dataframe with integer columns coerced.
+    """
+    for col in df.columns[1:]:  # Skip the first column
+        df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
+    return df
+
+
+@pytest.fixture
+def assignments_submitted_by_week():
+    df = pd.DataFrame(
+        {
+            "Full Name": [
+                "Name A",
+                "Name B",
+                "Name C",
+                "Name D",
+                "Name E",
+                "Name F",
+                "Name G",
+                "Name H",
+                "Name I",
+                "Name J",
+                "Name K",
+                "Name L",
+                "Name M",
+                "Name N",
+                "Name O",
+                "Name P",
+                "Name Q",
+                "Name R",
+            ],
+            1: [6, 25, 8, 8, 51, 17, None, 5, 1, None, 3, 24, 21, 5, 7, 59, 5, 3],
+            2: [10, 7, 7, 16, 5, 12, None, 4, 6, None, 5, 14, 12, None, 2, 34, 3, 4],
+            3: [5, 18, 1, 16, None, 11, 1, 5, 10, 64, 2, 23, 17, 4, 7, 27, 6, 26],
+            4: [6, 8, None, 12, None, 2, None, 4, 8, 11, 2, 7, 18, 5, 8, 33, 4, 25],
+            5: [4, 10, 11, 7, None, 11, 3, 5, None, 13, 7, 8, 6, None, 5, 22, 4, 13],
+            6: [
+                4,
+                None,
+                6,
+                13,
+                None,
+                6,
+                3,
+                5,
+                None,
+                11,
+                None,
+                3,
+                6,
+                1,
+                2,
+                21,
+                None,
+                None,
+            ],
+            7: [
+                5,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                3,
+                2,
+                19,
+                3,
+                2,
+                None,
+                None,
+                2,
+                10,
+                None,
+                None,
+            ],
+            8: [
+                5,
+                None,
+                None,
+                3,
+                None,
+                5,
+                None,
+                2,
+                None,
+                13,
+                1,
+                2,
+                8,
+                None,
+                8,
+                10,
+                None,
+                None,
+            ],
+            9: [
+                7,
+                15,
+                None,
+                6,
+                None,
+                1,
+                None,
+                6,
+                9,
+                8,
+                None,
+                5,
+                12,
+                None,
+                3,
+                12,
+                None,
+                None,
+            ],
+            10: [
+                7,
+                None,
+                15,
+                None,
+                None,
+                None,
+                None,
+                2,
+                16,
+                12,
+                3,
+                9,
+                5,
+                None,
+                2,
+                8,
+                None,
+                None,
+            ],
+        }
+    )
+    return coerce_to_integers(df)
+
+
+@pytest.fixture
+def total_assignments_by_skill():
+    df = pd.DataFrame(
+        {
+            "Full Name": [
+                "Name A",
+                "Name B",
+                "Name C",
+                "Name D",
+                "Name E",
+                "Name F",
+                "Name G",
+                "Name H",
+                "Name I",
+                "Name J",
+                "Name K",
+                "Name L",
+                "Name M",
+                "Name N",
+                "Name O",
+                "Name P",
+                "Name Q",
+                "Name R",
+            ],
+            "grammar": [
+                None,
+                32,
+                18,
+                30,
+                19,
+                19,
+                None,
+                None,
+                12,
+                60,
+                11,
+                38,
+                15,
+                None,
+                10,
+                64,
+                5,
+                20,
+            ],
+            "listen": [
+                21,
+                5,
+                3,
+                10,
+                2,
+                9,
+                None,
+                None,
+                10,
+                None,
+                2,
+                None,
+                34,
+                None,
+                12,
+                59,
+                2,
+                1,
+            ],
+            "read": [
+                20,
+                2,
+                10,
+                16,
+                21,
+                16,
+                4,
+                None,
+                14,
+                39,
+                3,
+                22,
+                21,
+                None,
+                11,
+                33,
+                4,
+                10,
+            ],
+            "speak": [
+                None,
+                3,
+                1,
+                2,
+                1,
+                2,
+                None,
+                26,
+                None,
+                None,
+                3,
+                1,
+                None,
+                15,
+                2,
+                17,
+                2,
+                None,
+            ],
+            "vocabulary": [
+                4,
+                34,
+                15,
+                18,
+                13,
+                11,
+                3,
+                None,
+                12,
+                52,
+                6,
+                35,
+                35,
+                None,
+                10,
+                55,
+                5,
+                38,
+            ],
+            "write": [
+                14,
+                7,
+                1,
+                5,
+                None,
+                8,
+                None,
+                15,
+                4,
+                None,
+                1,
+                1,
+                None,
+                None,
+                1,
+                8,
+                4,
+                2,
+            ],
+        }
+    )
+    return coerce_to_integers(df)
+
+
+@pytest.fixture
+def student_level_by_skill():
+    df = pd.DataFrame(
+        {
+            "Name": [
+                "Name A",
+                "Name B",
+                "Name C",
+                "Name D",
+                "Name E",
+                "Name F",
+                "Name G",
+                "Name H",
+                "Name I",
+                "Name J",
+                "Name K",
+                "Name L",
+                "Name M",
+                "Name N",
+                "Name O",
+                "Name P",
+                "Name Q",
+                "Name R",
+            ],
+            "grammar": [
+                None,
+                1,
+                2,
+                1,
+                0,
+                2,
+                None,
+                None,
+                0,
+                3,
+                0,
+                2,
+                3,
+                None,
+                1,
+                3,
+                1,
+                0,
+            ],
+            "listen": [
+                3,
+                0,
+                1,
+                2,
+                2,
+                0,
+                None,
+                None,
+                2,
+                None,
+                1,
+                None,
+                1,
+                None,
+                1,
+                2,
+                0,
+                None,
+            ],
+            "read": [3, 1, 1, 0, 0, 1, 0, None, 1, 3, 2, 1, 1, None, 1, 2, 1, 0],
+            "speak": [
+                None,
+                2,
+                2,
+                0,
+                None,
+                2,
+                None,
+                2,
+                None,
+                None,
+                0,
+                None,
+                None,
+                2,
+                0,
+                1,
+                0,
+                None,
+            ],
+            "vocabulary": [3, 2, 2, 1, 0, 2, 0, None, 1, 3, 0, 2, 3, None, 1, 3, 2, 2],
+            "write": [
+                0,
+                0,
+                2,
+                0,
+                None,
+                0,
+                None,
+                3,
+                1,
+                None,
+                None,
+                None,
+                None,
+                None,
+                2,
+                2,
+                0,
+                None,
+            ],
+        }
+    )
+    return coerce_to_integers(df)
+
+
+@pytest.fixture
+def tables(
+    assignments_submitted_by_week, total_assignments_by_skill, student_level_by_skill
+):
+    return {
+        "Assignments Submitted by Week": assignments_submitted_by_week,
+        "Total Assignments by Skill": total_assignments_by_skill,
+        "Student Level by Skill": student_level_by_skill,
+    }
+
+
+@pytest.fixture
+def pathways_pdf_path(request):
+    """Checks for the existence of the pdf and skips the test if not found."""
+    test_file_path = Path(request.config.rootpath) / PATHWAYS_PDF_FILENAME
+
+    if not os.path.exists(test_file_path):
+        pytest.skip(f"Skipping because file '{str(test_file_path)}' not found.")
+    return test_file_path

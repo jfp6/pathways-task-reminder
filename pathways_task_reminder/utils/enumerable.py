@@ -1,3 +1,6 @@
+from typing import Callable, Iterable
+
+
 def partition_while(
     predicate: Callable[[any], bool],
     iterable: Iterable[any],
