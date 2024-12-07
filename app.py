@@ -6,7 +6,7 @@ import streamlit as st
 from pathways_task_reminder.student_reporter import StudentReporter
 
 # Streamlit App
-st.title("Pathways Task Reminder (v1.1)")
+st.title("Pathways Task Reminder (v1.2)")
 
 uploaded_file = st.file_uploader(
     "Upload your Pathways Student Summary PDF", type=["pdf"]
