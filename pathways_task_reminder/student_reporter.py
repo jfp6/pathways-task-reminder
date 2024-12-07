@@ -9,8 +9,6 @@ from pathways_task_reminder.utils.html import to_image_path as html_path_to_png_
 import tempfile
 
 
-
-
 @dataclasses.dataclass
 class StudentReport:
     ASSIGNMENT_INDEX = "week"
@@ -26,13 +24,14 @@ class StudentReport:
 
     def to_html(self):
         assignment_df = self.assignment_series.to_frame(name=self.ASSIGNMENT_VALUES).T
+        mean_units_per_week = self.mean_units_per_week()
         parts = [
             "<br/>",
             to_table(assignment_df),
             "<br/>",
             to_table(self.skill_df),
             "<br/>",
-            f"{self.MEAN_UNITS_TEXT}: {self.mean_units_per_week()}",
+            f"{self.MEAN_UNITS_TEXT}: {mean_units_per_week:.1f}",
             "<br/>",
         ]
         return "\n".join(parts)
