@@ -1,5 +1,5 @@
 from pathlib import Path
-from html2image import Html2Image
+import subprocess
 
 
 def to_image_path(inpath: Path, outpath: Path):
