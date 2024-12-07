@@ -3,3 +3,4 @@ pandas
 matplotlib
 pymupdf
 tabulate
+html2image
