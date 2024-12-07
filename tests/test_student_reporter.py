@@ -2,10 +2,17 @@ import pytest
 from pathways_task_reminder.student_reporter import StudentReporter
 
 
+@pytest.fixture
+def student_report(tables):
+    breakpoint()
+    reports = StudentReporter().create_student_reports(tables)
+    return reports[0]
+
+
 @pytest.mark.skip
 def test_create_student_tables_from_pdf(pathways_pdf_path):
     reporter = StudentReporter.create_from_pdf(pathways_pdf_path)
-    tables = reporter.create_student_tables()
+    _ = reporter.create_student_tables()
 
 
 def test_create_student_tables(tables):
@@ -14,3 +21,8 @@ def test_create_student_tables(tables):
         print(f"<p>{student}</p>")
         print()
         print(report.to_html())
+
+
+def test_to_image_path(student_report):
+    path = student_report.to_image_path()
+    print(path)

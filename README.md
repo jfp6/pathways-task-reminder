@@ -12,7 +12,17 @@ of remaining tasks.
 
 ## Installation
 
+If running locally, install package `wkhtmltopdf`
+
+```
+# ubuntu/debian
+sudo apt-get wkhtmltopdf
+# arch
+yay -S wkhtmltopdf-static
+```
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/jtprince/pathways-task-reminder.git
    cd pathways-task-reminder
+

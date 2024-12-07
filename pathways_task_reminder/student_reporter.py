@@ -1,32 +1,16 @@
 from pathways_task_reminder.pdf_table_parser import PDFTableParser
 import dataclasses
 import pandas as pd
+from pathlib import Path
 from pathways_task_reminder import constants as const
+from pathways_task_reminder.utils.dataframe import to_table
+from pathways_task_reminder.utils.html import to_image_path
+
+import tempfile
+import os
 
 
 from tabulate import tabulate
-
-
-def dataframe_to_tabulate_table(df, tablefmt: str = "github"):
-    """
-    Converts a Pandas DataFrame to a format suitable for tabulate, including indices and handling <NA> values.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame.
-
-    Returns:
-        str: The formatted table as a string.
-    """
-    display_df = df.where(pd.notna(df), None)
-
-    first_header = df.columns.name or df.index.name
-    header_row = [first_header, *display_df.columns.tolist()]
-    rows = [[index] + row.tolist() for index, row in display_df.iterrows()]
-
-    tabulate_data = tabulate(
-        rows, headers=header_row, tablefmt=tablefmt, numalign="right"
-    )
-    return tabulate_data
 
 
 @dataclasses.dataclass
@@ -36,8 +20,9 @@ class StudentReport:
 
     SKILL_INDEX = ["level", "units"]
     SKILL_VALUES = "skill"
-    MEAN_UNITS_TEXT = "Your Average Units Completed Each Week of The Semester"
+    MEAN_UNITS_TEXT = "Average Units Completed Each Week of Semester"
 
+    name: str
     skill_df: pd.DataFrame
     assignment_series: pd.Series
 
@@ -45,14 +30,28 @@ class StudentReport:
         assignment_df = self.assignment_series.to_frame(name=self.ASSIGNMENT_VALUES).T
         parts = [
             "<br/>",
-            dataframe_to_tabulate_table(assignment_df, tablefmt="html"),
+            to_table(assignment_df),
             "<br/>",
-            dataframe_to_tabulate_table(self.skill_df, tablefmt="html"),
+            to_table(self.skill_df),
             "<br/>",
             f"{self.MEAN_UNITS_TEXT}: {self.mean_units_per_week()}",
             "<br/>",
         ]
         return "\n".join(parts)
+
+    def to_image_path(self):
+        html = self.to_html()
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as temp_html:
+                temp_html.write(html.encode("utf8"))
+                html_path = Path(
+                    temp_html.name
+                )  # Get the full path of the temporary HTML file
+
+            png_path = html_path.with_suffix(".png")
+            to_image_path(html_path, png_path)
+        finally:
+            Path(html_path).unlink(missing_ok=True)
 
     def mean_units_per_week(self):
         return self.assignment_series.mean()
@@ -60,9 +59,13 @@ class StudentReport:
 
 class StudentReporter:
     @classmethod
-    def create_from_pdf(cls, pdf_path):
+    def create_images_from_pdf(cls, pdf_path) -> dict[str, Path]:
         tables = PDFTableParser().extract_tables(pdf_path)
-        return cls().create_student_reports(tables)
+        return cls().create_student_report_images(tables)
+
+    def create_student_report_images(self, tables):
+        student_reports = self.create_student_reports(tables)
+        return {report.name: report.to_image_path() for report in student_reports}
 
     def create_student_reports(self, tables):
         student_series = self._create_student_series(tables)
@@ -83,10 +86,10 @@ class StudentReporter:
         student_names = student_series_by_table_name[
             const.STUDENT_LEVEL_BY_SKILL
         ].keys()
-        return {
-            name: self._assemble_student(name, student_series_by_table_name)
+        return [
+            self._assemble_student(name, student_series_by_table_name)
             for name in student_names
-        }
+        ]
 
     def _assemble_student(self, name, student_series):
         skill_levels = student_series[const.STUDENT_LEVEL_BY_SKILL][name]
@@ -98,4 +101,6 @@ class StudentReporter:
         skill_df.columns.name = StudentReport.SKILL_VALUES
         assignment_series = student_series[const.ASSIGNMENTS_SUBMITTED_BY_WEEK][name]
         assignment_series.index.name = StudentReport.ASSIGNMENT_INDEX
-        return StudentReport(skill_df=skill_df, assignment_series=assignment_series)
+        return StudentReport(
+            name=name, skill_df=skill_df, assignment_series=assignment_series
+        )
