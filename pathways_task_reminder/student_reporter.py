@@ -4,13 +4,11 @@ import pandas as pd
 from pathlib import Path
 from pathways_task_reminder import constants as const
 from pathways_task_reminder.utils.dataframe import to_table
-from pathways_task_reminder.utils.html import to_image_path
+from pathways_task_reminder.utils.html import to_image_path as html_path_to_png_path
 
 import tempfile
-import os
 
 
-from tabulate import tabulate
 
 
 @dataclasses.dataclass
@@ -39,7 +37,7 @@ class StudentReport:
         ]
         return "\n".join(parts)
 
-    def to_image_path(self):
+    def to_image(self):
         html = self.to_html()
         try:
             with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as temp_html:
@@ -49,9 +47,11 @@ class StudentReport:
                 )  # Get the full path of the temporary HTML file
 
             png_path = html_path.with_suffix(".png")
-            to_image_path(html_path, png_path)
+            html_path_to_png_path(html_path, png_path)
         finally:
             Path(html_path).unlink(missing_ok=True)
+
+        return png_path
 
     def mean_units_per_week(self):
         return self.assignment_series.mean()
@@ -65,7 +65,7 @@ class StudentReporter:
 
     def create_student_report_images(self, tables):
         student_reports = self.create_student_reports(tables)
-        return {report.name: report.to_image_path() for report in student_reports}
+        return {report.name: report.to_image() for report in student_reports}
 
     def create_student_reports(self, tables):
         student_series = self._create_student_series(tables)

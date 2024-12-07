@@ -6,7 +6,7 @@ def to_image_path(inpath: Path, outpath: Path):
     cmd = [
         "wkhtmltoimage",
         "--width",
-        400,
+        str(400),
         "--format",
         outpath.suffix[1:],
         str(inpath),

@@ -23,12 +23,6 @@ if uploaded_file:
         st.success(f"Found {len(image_paths_by_name)} tables in the PDF!")
 
     for name, image_path in image_paths_by_name.items():
-        st.image(image_path, caption=name, use_container_width=True)
-
-        # with open(table_image_path, "rb") as img_file:
-        #     st.download_button(
-        #         label="Download Table Image",
-        #         data=img_file,
-        #         file_name="table_image.png",
-        #         mime="image/png",
-        #     )
+        st.divider()
+        st.image(str(image_path), caption=name, use_container_width=False)
+        st.text("")

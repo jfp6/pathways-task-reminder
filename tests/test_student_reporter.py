@@ -4,7 +4,6 @@ from pathways_task_reminder.student_reporter import StudentReporter
 
 @pytest.fixture
 def student_report(tables):
-    breakpoint()
     reports = StudentReporter().create_student_reports(tables)
     return reports[0]
 
