@@ -18,6 +18,9 @@ def to_table(df: pd.DataFrame, format: str = "html"):
     rows = [[index] + row.tolist() for index, row in display_df.iterrows()]
 
     tabulate_data = tabulate(
-        rows, headers=header_row, tablefmt="html", numalign="right"
+        rows,
+        headers=header_row,
+        tablefmt="html",
+        # numalign="right"
     )
     return tabulate_data

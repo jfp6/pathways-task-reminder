@@ -4,9 +4,11 @@ import zipfile
 from datetime import datetime
 import streamlit as st
 from pathways_task_reminder.student_reporter import StudentReporter
+from pathways_task_reminder.utils.version import get_version
 
 # Streamlit App
-st.title("Pathways Task Reminder (v1.0.2)")
+version = get_version()
+st.title(f"Pathways Task Reminder (v{version})")
 
 uploaded_file = st.file_uploader(
     "Upload your Pathways Student Summary PDF", type=["pdf"]

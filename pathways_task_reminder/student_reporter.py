@@ -14,7 +14,9 @@ class StudentReport:
     ASSIGNMENT_INDEX = "week"
     ASSIGNMENT_VALUES = "units"
 
-    SKILL_INDEX = ["level", "units"]
+    LEVEL = "level"
+    UNITS = "units"
+    SKILL_INDEX = [LEVEL, UNITS]
     SKILL_VALUES = "skill"
     MEAN_UNITS_TEXT = "Average Units Completed Each Week of Semester"
 
@@ -25,11 +27,12 @@ class StudentReport:
     def to_html(self):
         assignment_df = self.assignment_series.to_frame(name=self.ASSIGNMENT_VALUES).T
         mean_units_per_week = self.mean_units_per_week()
+        skill_df_wo_level = self.skill_df.drop(LEVEL, axis=0, inplace=True)
         parts = [
             "<br/>",
             to_table(assignment_df),
             "<br/>",
-            to_table(self.skill_df),
+            to_table(skill_df_wo_level),
             "<br/>",
             f"{self.MEAN_UNITS_TEXT}: {mean_units_per_week:.1f}",
             "<br/>",
