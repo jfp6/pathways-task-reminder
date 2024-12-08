@@ -18,7 +18,13 @@ class StudentReport:
     UNITS = "units"
     SKILL_INDEX = [LEVEL, UNITS]
     SKILL_VALUES = "skill"
-    MEAN_UNITS_TEXT = "Average Units Completed Each Week of Semester"
+    MEAN_UNITS_TEXT = "Avg units completed e/ wk of semester"
+
+    # If not present keeps current name
+    SKILL_DISPLAY = {
+        "grammar": "gram",
+        "vocabulary": "vocab",
+    }
 
     name: str
     skill_df: pd.DataFrame
@@ -27,12 +33,13 @@ class StudentReport:
     def to_html(self):
         assignment_df = self.assignment_series.to_frame(name=self.ASSIGNMENT_VALUES).T
         mean_units_per_week = self.mean_units_per_week()
-        skill_df_wo_level = self.skill_df.drop(LEVEL, axis=0, inplace=True)
+        skill_df_wo_level = self.skill_df.drop(self.LEVEL, axis=0)
+        skill_df = skill_df_wo_level.rename(columns=self.SKILL_DISPLAY)
         parts = [
             "<br/>",
             to_table(assignment_df),
             "<br/>",
-            to_table(skill_df_wo_level),
+            to_table(skill_df),
             "<br/>",
             f"{self.MEAN_UNITS_TEXT}: {mean_units_per_week:.1f}",
             "<br/>",
