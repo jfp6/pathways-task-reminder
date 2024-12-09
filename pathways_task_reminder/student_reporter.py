@@ -63,7 +63,7 @@ class StudentReport:
         return png_path
 
     def mean_units_per_week(self):
-        return self.assignment_series.mean()
+        return self.assignment_series.fillna(0).mean()
 
 
 class StudentReporter:
